@@ -15,9 +15,12 @@ namespace Synth {
     const static float USEC_TO_MSEC = 0.001,
         SEC_TO_MSEC = 1000.0;
     
+    class PlayingNote;
+    
     typedef float (*floatfunc)(float); // Function that takes a float and returns a float
     typedef float (*resfunc)(float, float, float); // Function that takes phase, wave param, and previous sample, and returns a float
-    typedef void (*callback)(const std::vector<float>&, void*); // Function that consumes samples
+    typedef void (*callback)(const std::vector<float>&, void*,
+        const std::map<std::pair<int, int>, PlayingNote>& notes); // Function that consumes samples
 
     class Envelope {
         private:
@@ -210,7 +213,8 @@ namespace Synth {
             
             virtual ~Visualizer() {}
             
-            virtual void callback(const std::vector<float>& samples) = 0;
+            virtual void callback(const std::vector<float>& samples,
+                const std::map<std::pair<int, int>, PlayingNote>& notes) = 0;
             
             void finish()
             {
@@ -218,10 +222,12 @@ namespace Synth {
                 fmavi.finish(out);
             }
         
-            static void play(const std::vector<float>& samples, void *data)
+            static void play(const std::vector<float>& samples,
+                void *data,
+                const std::map<std::pair<int, int>, PlayingNote>& notes)
             {
                 Visualizer *vs = static_cast<Visualizer*>(data);
-                vs->callback(samples);
+                vs->callback(samples, notes);
             }
         
     };

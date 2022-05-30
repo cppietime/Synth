@@ -186,8 +186,11 @@ namespace Synth {
                 size_t numSamples = ms * samplesPerMsec;
                 fSamples.resize(numSamples);
                 std::fill(fSamples.begin(), fSamples.end(), 0);
-                for (auto it = playingNotes.begin(); it != playingNotes.end();) {
+                for (auto it = playingNotes.begin(); it != playingNotes.end(); it++) {
                     it->second.writeFloats(fSamples, samplerate, maxNotes);
+                }
+                func(fSamples, data, playingNotes);
+                for (auto it = playingNotes.begin(); it != playingNotes.end();) {
                     if (!it->second.alive())
                     {
                         it = playingNotes.erase(it);
@@ -196,7 +199,6 @@ namespace Synth {
                         it ++;
                     }
                 }
-                func(fSamples, data);
             }
             if (msg.msgType == Midi::TEMPO) {
                 usecPerQNote = ((uint32_t)msg.data[0] << 16) |
